@@ -1,7 +1,5 @@
-'''
-flet run --web --port 8888 .\pock_count_v2.py
-https://v4.mui.com/zh/components/material-icons/
-'''
+# flet run --web --port 8888 .\pock_count_v2.py
+# https://v4.mui.com/zh/components/material-icons/
 import flet as ft
 from datetime import datetime
 
@@ -37,6 +35,20 @@ class Main:
         #                            0, 0, 0, 0, 0]                               # 剩余码量
         # self.player_name_list   = []
         self.start_flag         = False                                         # 开始标志位
+        # 等待提示框
+        self.wait_disp          = ft.CupertinoAlertDialog(title=ft.Text("请稍等"), 
+                                                          content=ft.ProgressBar(col=6, color="amber", 
+                                                                                 bgcolor="#eeeeee"))
+        self.theme_red          = "#e86969"
+        self.theme_yellow       = "#ff9600"
+        self.theme_green        = "#01ab68"
+        self.theme_white        = "#ffffff"
+        self.theme_black        = "#2a2e32"
+        self.theme_gray         = "#939cab"
+        self.theme_gray_1       = "#fafafb"
+        self.theme_gray_2       = "#cbcdcf"
+        self.norm_height        = 45
+        self.text_size          = 14
     
     def reset_callback(self, e):
         '''重置按钮回调函数
@@ -66,7 +78,7 @@ class Main:
             self.close_action_callback(e)
             self.page.update()
             now_time = str(datetime.now().strftime("%H:%M:%S"))
-            log = ft.Text(now_time + " 手数 ++ 1 " + "当前:" + str(self.hand_num_list[player_index]))
+            log = ft.Text(now_time + " 手数 ++ 1 " + "当前:" + str(self.hand_num_list[player_index]), color=self.theme_red)
             self.people_log_list.controls[player_index].content.subtitle.controls.insert(0, log)
     
     def hand_num_sub(self, e):
@@ -81,7 +93,7 @@ class Main:
             self.close_action_callback(e)                       # 关闭命令提示窗
             self.page.update()
             now_time = str(datetime.now().strftime("%H:%M:%S"))
-            log = ft.Text(now_time + " 手数 -- 1 " + "当前:" + str(self.hand_num_list[player_index]))
+            log = ft.Text(now_time + " 手数 -- 1 " + "当前:" + str(self.hand_num_list[player_index]), color=self.theme_green)
             self.people_log_list.controls[player_index].content.subtitle.controls.insert(0, log)
 
     def add_people_callback(self, e):
@@ -188,12 +200,37 @@ class Main:
         i = int(e.control.parent.controls[0].value)  # 获取列表index
         self.people_log_list.controls[i].header.title.value = '玩家'+str(e.control.value)   # 更新玩家名称
 
-    def create_tfiled_0(self, name, col=1, height=30, disable=False, t_size=11):
+    def reset(self, e):
+        '''重置按钮提示框是回调函数
+        需要重置的操作包括
+        当前每手、当前倍率、人数、玩家数据表、历史记录
+        '''
+        if (False == self.start_flag):
+            self.page.open(self.wait_disp)
+            self.hand_num_now_tfiled.content.value      = '' # 当前每手
+            self.multi_power_now_tfiled.content.value   = '' # 当前倍率
+            # self.add_buttom.content.content.value       = 0  # 人数按钮，暂时不需要
+            # 初始化玩家列表
+            for i in range(self.player_num_upper):
+                self.people_datasheet.controls[i].controls[1].value = ''
+                self.people_datasheet.controls[i].controls[2].content.value = '0'
+                self.people_datasheet.controls[i].controls[3].value = '0'
+                ## 手数表清除
+                self.hand_num_list[i] = 0
+                ## 历史记录清除
+                self.people_logbase.controls[i].header.title.value = "玩家 ???"
+                if len(self.people_logbase.controls[i].content.subtitle.controls):
+                    del self.people_logbase.controls[i].content.subtitle.controls[:]
+        self.page.update()
+        self.page.close(self.wait_disp)
+        self.close_action_callback(e)                       # 关闭命令提示窗
+
+    def create_tfiled_0(self, name, col=1, height=45, disable=False, t_size=11, bg_color=0, color=0):
         '''创建文本框-预设0
         无边框，居中显示
         '''
-        return ft.TextField(value=name, disabled=disable, height=height,   \
-                            text_size=t_size, col=col,
+        return ft.TextField(value=name, disabled=disable, height=height,
+                            text_size=t_size, col=col, bgcolor=bg_color, color=color,
                             border=ft.InputBorder.NONE, text_align=ft.TextAlign.CENTER)
 
     def main(self, page: ft.Page):
@@ -201,6 +238,7 @@ class Main:
         self.page = page
         self.page.title = "德州扑克计分"
         self.page.scroll = True
+        self.page.bgcolor = self.theme_white
 
         self.page_init()
 
@@ -212,19 +250,21 @@ class Main:
 
         # 底部导航栏
         self.page.navigation_bar = ft.CupertinoNavigationBar(
-            bgcolor         = ft.Colors.LIME_50,
-            inactive_color  = ft.Colors.GREY,
-            active_color    = ft.Colors.BLACK,
+            bgcolor         = self.theme_gray_1,
+            inactive_color  = self.theme_gray,
+            active_color    = self.theme_black,
             on_change       = self.nav_bar_callback,
             destinations    = [
-                                ft.NavigationBarDestination(icon=ft.Icons.LOOKS_ONE_ROUNDED, label="计分面板"),
-                                ft.NavigationBarDestination(icon=ft.Icons.LOOKS_TWO_ROUNDED, label="历史记录"),
+                                ft.NavigationBarDestination(icon=ft.Icons.CHANGE_HISTORY, label="计分面板"),
+                                ft.NavigationBarDestination(icon=ft.Icons.CROP_SQUARE, label="历史记录"),
                                 ft.NavigationBarDestination(
-                                    icon=ft.Icons.LOOKS_3_ROUNDED,
+                                    icon=ft.Icons.BRIGHTNESS_1_OUTLINED,
                                     # selected_icon=ft.Icons.BOOKMARK,
                                     label="关于",
                                 ),
-                            ]
+                            ],
+            # border=ft.border.only(top=ft.border.BorderSide(1, "black")),
+            height          = 60
         )
 
         # 添加页面
@@ -239,17 +279,18 @@ class Main:
         字体大小设置为11
         '''
         for i in range(self.player_num_upper):
-            index       = self.create_tfiled_0(str(i), col=2, disable=True, t_size=11)
+            index       = self.create_tfiled_0(str(i), col=2, disable=True, t_size=self.text_size-2, bg_color=self.theme_gray_2, color=self.theme_black)
             # 名称，目前是序号
-            name        = self.create_tfiled_0('', col=4, disable=False, t_size=11)
+            name        = self.create_tfiled_0('', col=4, disable=False, t_size=self.text_size-2, bg_color=self.theme_gray_1, color=self.theme_black)
             name.on_change=self.change_name_callback    # 修改名称时候同步修改第二页
             # 手数
-            hand_n      = ft.CupertinoButton(content=ft.Text('0', color=ft.Colors.YELLOW, size=11), \
-                                             col=3, opacity_on_click=0.3,\
+            hand_n      = ft.CupertinoButton(content=ft.Text('0', color=self.theme_black, size=self.text_size-2),
+                                             col=3, opacity_on_click=0.3,
                                              disabled=True,                     # 默认无法修改
-                                             on_click=self.handnum_chan_callback)
+                                             on_click=self.handnum_chan_callback,
+                                             )
             # 剩余码量
-            res_chip    = self.create_tfiled_0('0', col=3, disable=True, t_size=11)
+            res_chip    = self.create_tfiled_0('0', col=3, disable=True, t_size=self.text_size-2, bg_color=self.theme_gray_1, color=self.theme_black)
             # 结余码量
             # sur_chip    = self.create_tfiled_0('0', col=3, disable=True, t_size=11)
             # 盈亏
@@ -264,13 +305,25 @@ class Main:
         '''
         # 顶部显示 # 手机竖屏的话显示两列，横屏显示4列，电脑全屏也显示4列
         ## 当前每手填空框
-        self.hand_num_now_tfiled     = ft.Container(ft.TextField(label="当前每手", border="underline", \
-                                                            disabled=False, text_align=ft.TextAlign.CENTER), \
-                                               col={"xs": 6, "sm": 3})
+        self.hand_num_now_tfiled     = ft.Container(ft.TextField(label="当前每手", disabled=False, border="none",
+                                                                 text_align=ft.TextAlign.CENTER, height=self.norm_height,
+                                                                 color=self.theme_black, text_size=self.text_size,
+                                                                 label_style=ft.TextStyle(color=self.theme_black, size=self.text_size),
+                                                                 bgcolor=self.theme_gray_2, border_radius=ft.border_radius.all(0),
+                                                                 focused_bgcolor=self.theme_yellow,
+                                                                 ),
+                                                    padding=10,
+                                                    col={"xs": 6, "sm": 3})
         ## 当前倍率填空框
-        self.multi_power_now_tfiled  = ft.Container(ft.TextField(label="当前倍率", border="underline", \
-                                                            disabled=False, text_align=ft.TextAlign.CENTER), \
-                                               col={"xs": 6, "sm": 3})
+        self.multi_power_now_tfiled  = ft.Container(ft.TextField(label="当前倍率", disabled=False, border="none",
+                                                                 text_align=ft.TextAlign.CENTER, height=self.norm_height,
+                                                                 color=self.theme_black, text_size=self.text_size,
+                                                                 label_style=ft.TextStyle(color=self.theme_black, size=self.text_size),
+                                                                 bgcolor=self.theme_gray_2, border_radius=ft.border_radius.all(0),
+                                                                 focused_bgcolor=self.theme_red,
+                                                                 ),
+                                                    padding=10,
+                                                    col={"xs": 6, "sm": 3})
         ## logo
         # logo_text               = ft.Text("小楠出品 V2.0")
         # logo_text_cont          = ft.Container(
@@ -285,12 +338,27 @@ class Main:
         #                                        )
 
         ## 添加人员按钮
-        add_button_text         = ft.Container(ft.Text("人数"), \
+        add_button_text         = ft.Container(ft.TextField(value="人数", text_align=ft.TextAlign.RIGHT, height=self.norm_height,
+                                                            border="none", color=self.theme_black, disabled=True,
+                                                            ),
+                                               padding=10,
                                                col={"xs": 2, "sm": 1})
         ### 默认人数是0
-        self.add_buttom         = ft.Container(ft.TextButton(content=ft.Text(value=self.player_index_list[0],   \
-                                                                             ref=self.select_people_ref),       \
-                                                                 on_click=self.add_people_callback),            \
+        self.add_buttom         = ft.Container(ft.TextButton(content=ft.Text(value=self.player_index_list[0],
+                                                                             ref=self.select_people_ref,
+                                                                             color=self.theme_yellow,
+                                                                             height=33,
+                                                                             ),
+                                                             style=ft.ButtonStyle(
+                                                                                  shape=ft.RoundedRectangleBorder(radius=10),
+                                                                                  # 字体变大一些好看点
+                                                                                  text_style=ft.TextStyle(
+                                                                                                            size=self.text_size+3
+                                                                                                          )
+                                                                                  ),
+                                                             on_click=self.add_people_callback),
+                                            #    shape=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),
+                                               padding=10,
                                                col={"xs": 2, "sm": 1})
         ### 选择列表参数，默认人数是0
         people_n_picker         = ft.CupertinoPicker(
@@ -309,24 +377,33 @@ class Main:
                                                         )
 
         ## 开始按钮
-        start_buttom            = ft.Container(ft.FilledTonalButton(text="开始", data=0, 
-                                                                    on_click=self.start_button_callback), \
+        start_buttom            = ft.Container(ft.FilledTonalButton(text="开始", data=0, height=self.norm_height,
+                                                                    on_click=self.start_button_callback,
+                                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),
+                                                                    color=self.theme_black,
+                                                                    bgcolor=self.theme_gray_2,
+                                                                    ),
+                                               padding=10,
                                                col={"xs": 4, "sm": 2})
 
         ## 重置按钮
-        self.reset_buttom            = ft.Container(ft.FilledTonalButton(text="重置", data=0,  \
-                                                                    icon=ft.icons.WARNING_ROUNDED,  \
-                                                                    icon_color=ft.Colors.RED_600,   \
-                                                                    style=ft.ButtonStyle(color=ft.Colors.RED_600), \
-                                                                    on_click=self.reset_callback),  \
-                                               col={"xs": 4, "sm": 2},                    \
+        self.reset_buttom       = ft.Container(ft.FilledTonalButton(text="重置", data=0, height=self.norm_height,
+                                                                    icon="warning_rounded",  
+                                                                    icon_color=ft.Colors.RED_600,   
+                                                                    style=ft.ButtonStyle(color=ft.Colors.RED_600,
+                                                                                         shape=ft.RoundedRectangleBorder(radius=0)), 
+                                                                    on_click=self.reset_callback,
+                                                                    bgcolor=self.theme_black,
+                                                                    ),
+                                               padding=10,
+                                               col={"xs": 4, "sm": 2},                    
                                                )
         ### ios风格按钮
         cupertino_actions       = [
                                     ft.CupertinoDialogAction(
                                         "是的",
                                         is_destructive_action=True,
-                                        on_click=self.close_action_callback,
+                                        on_click=self.reset,
                                     ),
                                     ft.CupertinoDialogAction(
                                         text="否",
@@ -357,17 +434,17 @@ class Main:
         
         # 玩家数据表格
         ## 表头显示
-        sheet_head_index         = ft.TextField(value="序号",    disabled=True, height=self.d_height,   \
-                                                text_size=self.d_text_size, col=2,\
+        sheet_head_index         = ft.TextField(value="序号",       disabled=True, height=self.norm_height,
+                                                text_size=self.text_size-2, col=2, color=self.theme_black, bgcolor=self.theme_gray_2,
                                                 border=ft.InputBorder.NONE, text_align=ft.TextAlign.CENTER)
-        sheet_head_name         = ft.TextField(value="玩家名称",    disabled=True, height=self.d_height,   \
-                                                text_size=self.d_text_size, col=4,\
+        sheet_head_name         = ft.TextField(value="玩家名称",    disabled=True, height=self.norm_height,
+                                                text_size=self.text_size-2, col=4, color=self.theme_black, bgcolor=self.theme_gray_1,
                                                 border=ft.InputBorder.NONE, text_align=ft.TextAlign.CENTER)
-        sheet_head_hand_num     = ft.TextField(value="手数",    disabled=True, height=self.d_height,   \
-                                                text_size=self.d_text_size, col=3,
+        sheet_head_hand_num     = ft.TextField(value="手数",        disabled=True, height=self.norm_height,
+                                                text_size=self.text_size-2, col=3, color=self.theme_black, bgcolor=self.theme_gray_2,
                                                 border=ft.InputBorder.NONE, text_align=ft.TextAlign.CENTER)
-        sheet_head_res_chip     = ft.TextField(value="剩余码量", disabled=True, height=self.d_height,   \
-                                                text_size=self.d_text_size, col=3,
+        sheet_head_res_chip     = ft.TextField(value="剩余码量",    disabled=True, height=self.norm_height,
+                                                text_size=self.text_size-2, col=3, color=self.theme_black, bgcolor=self.theme_gray_1,
                                                 border=ft.InputBorder.NONE, text_align=ft.TextAlign.CENTER)
         # sheet_head_surplus_chip = ft.TextField(value="结余码量", disabled=True, height=self.d_height,   \
         #                                         text_size=self.d_text_size, col=3,
@@ -414,8 +491,8 @@ class Main:
         for i in range(self.player_num_upper):
             # 面板
             exp = ft.ExpansionPanel(
-                bgcolor=ft.Colors.BLACK,
-                header=ft.ListTile(title=ft.Text(f"玩家 {i}")),
+                bgcolor=self.theme_gray_1,
+                header=ft.ListTile(title=ft.Text(f"玩家 ???", color=self.theme_black)),
             )
             # 面板展开控件
             exp.content = ft.ListTile(
@@ -432,17 +509,17 @@ class Main:
     def history_page_init(self):
         # 当前所有选手信息记录
         self.people_logbase = ft.ExpansionPanelList(
-            expand_icon_color=ft.Colors.YELLOW,
+            expand_icon_color=self.theme_black,
             elevation=2,
-            divider_color=ft.Colors.YELLOW,
+            divider_color=self.theme_black,
             # on_change=handle_change,
             controls=[
             ]
         )
         self.people_log_list = ft.ExpansionPanelList(
-            expand_icon_color=ft.Colors.YELLOW,
+            expand_icon_color=self.theme_black,
             elevation=2,
-            divider_color=ft.Colors.YELLOW,
+            divider_color=self.theme_black,
             # on_change=handle_change,
             controls=[
             ]
@@ -453,7 +530,7 @@ class Main:
          
     def about_page_init(self):
         # logo
-        logo_text               = ft.Text("小楠出品 V2.0.4")
+        logo_text               = ft.Text("小楠出品 V2.0.5")
         logo_text_cont          = ft.Container(
                                                content=logo_text,
                                                margin=5,
