@@ -529,19 +529,58 @@ class Main:
         return self.people_log_list
          
     def about_page_init(self):
-        # logo
-        logo_text               = ft.Text("小楠出品 V2.0.5")
-        logo_text_cont          = ft.Container(
-                                               content=logo_text,
-                                               margin=5,
-                                               padding=5,
-                                               alignment=ft.alignment.center,
-                                               bgcolor=ft.Colors.PURPLE_ACCENT_700,
-                                               data=0,
-                                               ink=True,
-                                               col={"xs": 6, "sm": 3}
-                                               )
-        return logo_text_cont
+        '''关于页面
+        主要是显示一些花的东西
+        '''
+        blank                       = ft.Text("", theme_style=ft.TextThemeStyle.DISPLAY_LARGE)
+        time_info                   = ft.Text("22:29:34", theme_style=ft.TextThemeStyle.DISPLAY_LARGE, color=self.theme_black)
+        discription                 = ft.Row([
+                                              ft.Icon(name=ft.Icons.FAVORITE, color=self.theme_red),
+                                              ft.Text("小楠出品 V2.0.6", theme_style=ft.TextThemeStyle.TITLE_MEDIUM, color=self.theme_black)
+                                              ])
+        header                      = ft.Container(
+                                            content=ft.Column([blank, time_info, discription]), 
+                                            padding=20,
+                                            )
+        
+        image                       = ft.Container(
+                                            content=ft.Image(src=f"https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/86/22/53/86225309-0ac8-3ee6-3118-66ec50ddc8e7/196589268105.jpg/360x360bb.webp",
+                                                             border_radius=10),
+                                            padding=20,
+                                            height=250,
+                                            width=500,
+                                            # blur=10,
+                                            # bgcolor=self.theme_gray,
+                                            alignment=ft.alignment.center_left,
+                                            )
+
+        sing_title                  = ft.Text(">>给你一瓶魔法药水", theme_style=ft.TextThemeStyle.DISPLAY_SMALL, color=self.theme_black)
+        sing_content0               = ft.Text("给你一瓶魔法药水", theme_style=ft.TextThemeStyle.HEADLINE_SMALL, color=self.theme_gray)
+        sing_content1               = ft.Text("喝下去就不需要氧气", theme_style=ft.TextThemeStyle.HEADLINE_SMALL, color=self.theme_gray)
+        sing_content2               = ft.Text("给你一瓶魔法药水", theme_style=ft.TextThemeStyle.HEADLINE_SMALL, color=self.theme_gray)
+        sing_content3               = ft.Text("喝下去就不怕身体结冰", theme_style=ft.TextThemeStyle.HEADLINE_SMALL, color=self.theme_gray)
+        sing_disp                   = ft.Container(
+                                            content=ft.Column([sing_title, sing_content0, sing_content1, sing_content2, sing_content3]),
+                                            padding=20,
+                                            # bgcolor=self.theme_gray,
+                                            width=500,
+                                            height=600,
+                                            # blur=10,
+                                            )
+
+        background                  = ft.Image(
+                                            src=f"https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/86/22/53/86225309-0ac8-3ee6-3118-66ec50ddc8e7/196589268105.jpg/360x360bb.webp",
+                                            height=1000,
+                                            width=1000,
+                                            fit=ft.ImageFit.COVER
+                                            )
+        
+        all_contain                 = ft.Container(
+                                            content=ft.Column([header, image, sing_disp]),
+                                            blur=20,
+                                            )
+
+        return ft.Stack([background, all_contain])
 
 if __name__ == "__main__":
     main_class = Main()
