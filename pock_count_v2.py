@@ -536,7 +536,7 @@ class Main:
         time_info                   = ft.Text("22:29:34", theme_style=ft.TextThemeStyle.DISPLAY_SMALL, color=self.theme_black)
         discription                 = ft.Row([
                                               ft.Icon(name=ft.Icons.FAVORITE, color=self.theme_red, size=15),
-                                              ft.Text("小楠出品 V2.0.6", theme_style=ft.TextThemeStyle.TITLE_SMALL, color=self.theme_black)
+                                              ft.Text("xx出品 V2.0.6", theme_style=ft.TextThemeStyle.TITLE_SMALL, color=self.theme_black)
                                               ])
         header                      = ft.Container(
                                             content=ft.Column([blank, time_info, discription]), 
