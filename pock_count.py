@@ -245,7 +245,7 @@ class Count_page:
         multi_power_now_tfiled = ft.TextField(label="当前倍率", border="underline", \
                                               disabled=False, value=self.default_multi_power_now, width=self.width0, \
                                               height=self.height0, text_align=ft.TextAlign.CENTER, text_size=15)
-        logo_text = ft.Text("小楠出品 V1.3", \
+        logo_text = ft.Text("xx出品 V1.3", \
                             # width=self.width1-10, height=self.height0-10, text_align=ft.TextAlign.CENTER, \
                             # size=20, color=ft.Colors.WHITE, bgcolor=ft.Colors.BLUE_600 \
                             )
